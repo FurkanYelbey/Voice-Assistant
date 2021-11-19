@@ -1,0 +1,143 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Speech;
+using System.Speech.Synthesis;
+using System.Speech.Recognition;
+using System.IO;
+using System.Diagnostics;
+
+
+namespace BankaUygulaması
+{
+    public partial class Form13 : Form
+    {
+        public bool wake = false;
+        public Form13()
+        {
+            InitializeComponent();
+
+        }
+
+        SpeechSynthesizer s = new SpeechSynthesizer();
+        SpeechRecognitionEngine sr = new SpeechRecognitionEngine();
+        PromptBuilder pb = new PromptBuilder();
+
+
+        private void Form13_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            Choices list = new Choices();
+            string[] text = File.ReadAllLines(Environment.CurrentDirectory + "//commands.txt");
+            list.Add(text);
+            Grammar gm = new Grammar(new GrammarBuilder(list));
+
+
+
+            sr.LoadGrammar(gm);
+            sr.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(Sr_SpeechRecognized);
+            sr.SetInputToDefaultAudioDevice();
+            sr.RecognizeAsync(RecognizeMode.Multiple);
+
+
+            pb.ClearContent();
+            pb.AppendText(label2.Text);
+            s.Speak(pb);
+
+
+        }
+
+        public void Say(string phrase)
+        {
+            s.SpeakAsync(phrase);
+            wake = false;
+
+        }
+
+        private void Sr_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        {
+            string speechSaid = e.Result.Text;
+
+
+            if (speechSaid == "hey karen")
+            {
+                System.Media.SoundPlayer player = new System.Media.SoundPlayer(Environment.CurrentDirectory + "//joined.wav");
+                player.Play();
+                wake = true;
+            }
+
+
+            if (wake)
+            {
+
+
+
+                switch (speechSaid)
+                {
+                    case ("show portfolio list"):
+                        Say("Showing portfolio list");
+                        label2.Text = "Showing portfolio list.";
+                        Form2 frm5 = new Form2();
+                        frm5.button1_Click();
+                        wake = true;
+                        break;
+
+                    case ("show currency list"):
+                        Say("Showing currency list");
+                        label2.Text = "Showing currency list";
+                        Form2 frm6 = new Form2();
+                        frm6.button2_Click();
+                        wake = true;
+                        break;
+
+                    case ("add balance"):
+                        Say("Opening add balance");
+                        label2.Text = "Opening add balance";
+                        Form3 form3 = new Form3();
+                        form3.ShowDialog();
+                        wake = true;
+                        break;
+
+                    case ("withdraw money"):
+                        Say("Opening withdraw money");
+                        label2.Text = "Opening withdraw money";
+                        Form4 form4 = new Form4();
+                        form4.ShowDialog();
+                        wake = true;
+                        break;
+
+                    case ("close"):
+                        Say("Closing program");
+                        SendKeys.Send("%{F4}");
+                        break;
+
+
+
+                }
+
+            }
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+
+    }
+}
